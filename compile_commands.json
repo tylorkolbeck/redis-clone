@@ -1,0 +1,26 @@
+[
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-c",
+      "-o",
+      "server",
+      "server.c"
+    ],
+    "directory": "/home/tylor/dev/c-learning/file-descriptors",
+    "file": "/home/tylor/dev/c-learning/file-descriptors/server.c",
+    "output": "/home/tylor/dev/c-learning/file-descriptors/server"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-c",
+      "-o",
+      "server",
+      "logger.c"
+    ],
+    "directory": "/home/tylor/dev/c-learning/file-descriptors",
+    "file": "/home/tylor/dev/c-learning/file-descriptors/logger.c",
+    "output": "/home/tylor/dev/c-learning/file-descriptors/server"
+  }
+]
