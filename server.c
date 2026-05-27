@@ -8,6 +8,7 @@
 #include <unistd.h>
 
 static void do_something(int connfd);
+static int32_t one_request(int connfd);
 
 int main() {
   int running = 1;
@@ -19,10 +20,6 @@ int main() {
 
   // AF_INET - IPv4
   // SOCK_STREAM - TCP
-  // IPv4+TCP	socket(AF_INET, SOCK_STREAM, 0)
-  // IPv6+TCP	socket(AF_INET6, SOCK_STREAM, 0)
-  // IPv4+UDP	socket(AF_INET, SOCK_DGRAM, 0)
-  // IPv6+UDP	socket(AF_INET6, SOCK_DGRAM, 0)
   int fd = socket(AF_INET, SOCK_STREAM, 0);
 
   int val = 1;
@@ -64,6 +61,14 @@ int main() {
     snprintf(log_msg, sizeof(log_msg), "Connection Accepted from %s:%d",
              client_ip, client_port);
     logger(log_msg);
+
+    while (1) {
+      int32_t err = one_request(connfd);
+      if (err) {
+        logger("error reading request");
+        break;
+      }
+    }
 
     do_something(connfd);
     close(connfd);
