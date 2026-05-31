@@ -1,5 +1,5 @@
-#include "logger.h"
 #include "util.h"
+#include <errno.h>
 #include <netinet/in.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -11,22 +11,48 @@ const size_t k_max_msg = 4096;
 
 static int32_t query(int fd, const char *text) {
   uint32_t len = (uint32_t)strlen(text);
+
+  // Check length of message
   if (len > k_max_msg) {
-    logger("client: length of message is too long\n");
+    msg("client: length of message is too long");
     return -1;
   }
 
+  // copy header length and messge to buffer
+  // send request
   char wbuf[4 + k_max_msg];
   memcpy(wbuf, &len, 4);
-  printf("Client writing message length %u\n", len);
   memcpy(&wbuf[4], text, len);
 
-  // Write header
+  // Write header and data to server connection
   int32_t err = write_all(fd, wbuf, 4 + len);
   if (err) {
-    printf("error write_all()\n");
+    msg("error write_all()");
     return err;
   }
+
+  // Reply
+  char rbuf[4 + k_max_msg];
+  errno = 0;
+  err = read_full(fd, rbuf, 4);
+  if (err) {
+    msg(errno == 0 ? "EOF" : "read() error");
+    return err;
+  }
+  memcpy(&len, rbuf, 4);
+  if (len > k_max_msg) {
+    msg("too long");
+    return -1;
+  }
+
+  // reply body
+  err = read_full(fd, &rbuf[4], len);
+  if (err) {
+    msg("read() error");
+    return err;
+  }
+
+  printf("server says: %.*s\n", len, &rbuf[4]);
 
   return 0;
 }
@@ -46,7 +72,7 @@ int main() {
     return 1;
   }
 
-  int32_t err = query(fd, "lo1");
+  int32_t err = query(fd, "Hello, World!");
   if (err) {
     close(fd);
     return 0;

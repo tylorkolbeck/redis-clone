@@ -7,5 +7,7 @@
 int32_t write_all(int fd, char *buf, size_t n);
 int32_t read_full(int fd, char *buf, size_t n);
 int open_file(char *fileName);
+void msg(const char *msg);
+void die(const char *msg);
 
 #endif // !UTIL_H

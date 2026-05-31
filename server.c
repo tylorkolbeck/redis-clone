@@ -18,21 +18,6 @@ const int port = 1234;
 int main() {
   int running = 1;
 
-  int test_fd = open_file("net_test.txt");
-  if (test_fd <= 0) {
-    printf("error opening test file\n");
-    return 1;
-  } else {
-    printf("test file opened\n");
-  }
-
-  int32_t err = one_request(test_fd);
-  if (err) {
-    return 1;
-  }
-
-  return 0;
-
   // AF_INET - IPv4
   // SOCK_STREAM - TCP
   int fd = socket(AF_INET, SOCK_STREAM, 0);
@@ -103,22 +88,26 @@ int main() {
 }
 
 static int32_t one_request(int connfd) {
-  errno = 0;
   char rbuf[4 + k_max_msg];
 
-  // Read the 4bytes header to get the body length
+  // errno is set to the error code if the syscall failed. Must initialize to 0
+  // before making a syscall because libc will not reset it to 0 if it
+  // succeeds
+  errno = 0;
+
+  // Read the 4 bytes header to get the body length
   int32_t err = read_full(connfd, rbuf, 4);
   if (err) {
-    printf(errno == 0 ? "EOF" : "read() error");
+    msg(errno == 0 ? "EOF" : "read() error");
     return err;
   }
+
   uint32_t len = 0;
   memcpy(&len, rbuf, 4);
-  if (len > k_max_msg + 4) {
+  if (len > k_max_msg) {
     printf("message too big %u\n", len);
     return -1;
   }
-  printf("Message Size: %u\n", len);
 
   // Read the request body
   err = read_full(connfd, &rbuf[4], len);
@@ -129,23 +118,10 @@ static int32_t one_request(int connfd) {
 
   printf("Client sent %.*s\n", len, &rbuf[4]);
 
-  // char rbuf[k_max_msg];
-  // err = read_full(connfd, rbuf, *buf_size);
-  // if (err) {
-  //   printf(errno == 0 ? "EOF" : "read() error");
-  //   return err;
-  // }
-  // memcpy(&len, rbuf, *buf_size);
-  // if (len > k_max_msg) {
-  //   logger("server: message is too long");
-  //   return -1;
-  // }
-
-  // const char reply[] = "world";
-  // char wbuf[4 + sizeof(reply)];
-  // len = (uint32_t)strlen(reply);
-  // memcpy(wbuf, &len, 4);
-  // memcpy(&wbuf[4], reply, len);
-  // return write_all(connfd, wbuf, 4 + len);
-  return 0;
+  const char reply[] = "world";
+  char wbuf[4 + sizeof(reply)];
+  len = (uint32_t)strlen(reply);
+  memcpy(wbuf, &len, 4);
+  memcpy(&wbuf[4], reply, len);
+  return write_all(connfd, wbuf, 4 + len);
 }

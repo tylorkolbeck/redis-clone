@@ -3,90 +3,36 @@
     "arguments": [
       "/usr/bin/gcc",
       "-c",
-      "-Wall",
-      "-Wextra",
-      "-O2",
-      "-o",
-      "./out/server",
       "server.c"
     ],
-    "directory": "/home/tylor/dev/c-learning/file-descriptors",
-    "file": "/home/tylor/dev/c-learning/file-descriptors/server.c",
-    "output": "/home/tylor/dev/c-learning/file-descriptors/out/server"
+    "directory": "/home/tylor/dev/c-learning/redis-clone",
+    "file": "/home/tylor/dev/c-learning/redis-clone/server.c"
   },
   {
     "arguments": [
       "/usr/bin/gcc",
       "-c",
-      "-Wall",
-      "-Wextra",
-      "-O2",
-      "-o",
-      "./out/server",
-      "util.c"
-    ],
-    "directory": "/home/tylor/dev/c-learning/file-descriptors",
-    "file": "/home/tylor/dev/c-learning/file-descriptors/util.c",
-    "output": "/home/tylor/dev/c-learning/file-descriptors/out/server"
-  },
-  {
-    "arguments": [
-      "/usr/bin/gcc",
-      "-c",
-      "-Wall",
-      "-Wextra",
-      "-O2",
-      "-o",
-      "./out/server",
       "logger.c"
     ],
-    "directory": "/home/tylor/dev/c-learning/file-descriptors",
-    "file": "/home/tylor/dev/c-learning/file-descriptors/logger.c",
-    "output": "/home/tylor/dev/c-learning/file-descriptors/out/server"
+    "directory": "/home/tylor/dev/c-learning/redis-clone",
+    "file": "/home/tylor/dev/c-learning/redis-clone/logger.c"
   },
   {
     "arguments": [
       "/usr/bin/gcc",
       "-c",
-      "-Wall",
-      "-Wextra",
-      "-O2",
-      "-o",
-      "./out/client",
+      "util.c"
+    ],
+    "directory": "/home/tylor/dev/c-learning/redis-clone",
+    "file": "/home/tylor/dev/c-learning/redis-clone/util.c"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-c",
       "client.c"
     ],
-    "directory": "/home/tylor/dev/c-learning/file-descriptors",
-    "file": "/home/tylor/dev/c-learning/file-descriptors/client.c",
-    "output": "/home/tylor/dev/c-learning/file-descriptors/out/client"
-  },
-  {
-    "arguments": [
-      "/usr/bin/gcc",
-      "-c",
-      "-Wall",
-      "-Wextra",
-      "-O2",
-      "-o",
-      "./out/client",
-      "util.c"
-    ],
-    "directory": "/home/tylor/dev/c-learning/file-descriptors",
-    "file": "/home/tylor/dev/c-learning/file-descriptors/util.c",
-    "output": "/home/tylor/dev/c-learning/file-descriptors/out/client"
-  },
-  {
-    "arguments": [
-      "/usr/bin/gcc",
-      "-c",
-      "-Wall",
-      "-Wextra",
-      "-O2",
-      "-o",
-      "./out/client",
-      "logger.c"
-    ],
-    "directory": "/home/tylor/dev/c-learning/file-descriptors",
-    "file": "/home/tylor/dev/c-learning/file-descriptors/logger.c",
-    "output": "/home/tylor/dev/c-learning/file-descriptors/out/client"
+    "directory": "/home/tylor/dev/c-learning/redis-clone",
+    "file": "/home/tylor/dev/c-learning/redis-clone/client.c"
   }
 ]
