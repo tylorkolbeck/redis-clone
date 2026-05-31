@@ -83,7 +83,7 @@ static int32_t one_request(int connfd) {
 
   printf("Client sent %.*s\n", len, &rbuf[4]);
 
-  const char reply[] = "world";
+  const char reply[] = "PONG";
   char wbuf[4 + sizeof(reply)];
   len = (uint32_t)strlen(reply);
   memcpy(wbuf, &len, 4);

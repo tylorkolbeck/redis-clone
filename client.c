@@ -72,7 +72,7 @@ int main() {
     return 1;
   }
 
-  int32_t err = query(fd, "Hello, World!");
+  int32_t err = query(fd, "PING");
   if (err) {
     close(fd);
     return 0;
