@@ -10,6 +10,6 @@ void logger_close();
 char *cat(const char *str1, const char *str2);
 void bufFree(char *buf);
 char *buf_to_str(size_t size);
-void log_http(int connfd, const char *raw_req);
+void log_http(int connfd);
 
-#endif
+#endif // LOGGER_H

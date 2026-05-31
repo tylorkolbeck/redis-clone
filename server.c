@@ -1,5 +1,8 @@
 #include "logger.h"
+#include "util.h"
 #include <arpa/inet.h>
+#include <assert.h>
+#include <errno.h>
 #include <fcntl.h>
 #include <netinet/in.h>
 #include <stdio.h>
@@ -7,23 +10,41 @@
 #include <sys/socket.h>
 #include <unistd.h>
 
-static void do_something(int connfd);
 static int32_t one_request(int connfd);
+const size_t k_max_msg = 4096;
+
+const int port = 1234;
 
 int main() {
   int running = 1;
-  int logErr = init_log("log.txt");
-  if (logErr) {
-    perror("Failed to initialize logger");
+
+  int test_fd = open_file("net_test.txt");
+  if (test_fd <= 0) {
+    printf("error opening test file\n");
+    return 1;
+  } else {
+    printf("test file opened\n");
+  }
+
+  int32_t err = one_request(test_fd);
+  if (err) {
     return 1;
   }
+
+  return 0;
 
   // AF_INET - IPv4
   // SOCK_STREAM - TCP
   int fd = socket(AF_INET, SOCK_STREAM, 0);
+  if (fd < 0) {
+    printf("Error creating socket\n");
+  }
 
   int val = 1;
-  setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &val, sizeof(val));
+  int sock_err = setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &val, sizeof(val));
+  if (sock_err < 0) {
+    printf("Error setting socket options\n");
+  }
 
   struct in_addr in_a = {.s_addr = htonl(0)};
   struct sockaddr_in addr = {
@@ -31,13 +52,15 @@ int main() {
 
   int rv = bind(fd, (const struct sockaddr *)&addr, sizeof(addr));
   if (rv) {
-    logger("Failed to bind address to port");
+    printf("FAILED TO BIND ADDRESS\n");
+    logger("Failed to bind address to port\n");
     return 1;
   }
 
+  printf("Server listening on port: %d\n", port);
   rv = listen(fd, SOMAXCONN);
   if (rv) {
-    logger("Failed to listen on socket");
+    logger("Failed to listen on socket\n");
   }
 
   while (running) {
@@ -65,59 +88,64 @@ int main() {
     while (1) {
       int32_t err = one_request(connfd);
       if (err) {
-        logger("error reading request");
         break;
       }
     }
 
-    do_something(connfd);
+    // do_something(connfd);
     close(connfd);
   }
+
+  printf("Server shutting down");
 
   logger_close();
   return 0;
 }
 
-static void do_something(int connfd) {
-  log_http(connfd, "");
-  // char req_buffer[4096];
-  // memset(req_buffer, 0, sizeof(req_buffer));
-  // ssize_t bytes_read = read(connfd, req_buffer, sizeof(req_buffer) - 1);
-  //
-  // if (bytes_read < 0) {
-  //   logger("error reading from connection socket");
-  //   return;
-  // } else if (bytes_read == 0) {
-  //   logger("client disconnected before sending request");
-  //   return;
-  // } else {
-  //   logger("Read all incoming bytes");
+static int32_t one_request(int connfd) {
+  errno = 0;
+  char rbuf[4 + k_max_msg];
+
+  // Read the 4bytes header to get the body length
+  int32_t err = read_full(connfd, rbuf, 4);
+  if (err) {
+    printf(errno == 0 ? "EOF" : "read() error");
+    return err;
+  }
+  uint32_t len = 0;
+  memcpy(&len, rbuf, 4);
+  if (len > k_max_msg + 4) {
+    printf("message too big %u\n", len);
+    return -1;
+  }
+  printf("Message Size: %u\n", len);
+
+  // Read the request body
+  err = read_full(connfd, &rbuf[4], len);
+  if (err) {
+    printf("read() error\n");
+    return -1;
+  }
+
+  printf("Client sent %.*s\n", len, &rbuf[4]);
+
+  // char rbuf[k_max_msg];
+  // err = read_full(connfd, rbuf, *buf_size);
+  // if (err) {
+  //   printf(errno == 0 ? "EOF" : "read() error");
+  //   return err;
   // }
-  //
-  // req_buffer[bytes_read] = '\0';
-  // logger(req_buffer);
-
-  // Read the buffer
-  // char rbuf[64] = {};
-  // ssize_t n = read(connfd, rbuf, sizeof(rbuf) - 1);
-  // if (n < 0) {
-  //   logger("buffer read() error");
-  //   return;
+  // memcpy(&len, rbuf, *buf_size);
+  // if (len > k_max_msg) {
+  //   logger("server: message is too long");
+  //   return -1;
   // }
-  //
-  // // Log what the client sent
-  // char *clientMsg = cat("Client sent: ", rbuf);
-  // logger(clientMsg);
-  // bufFree(clientMsg);
 
-  // Respond with a message
-  char res[] = "HTTP/1.1 200 OK\r\n"
-               "Content-Type: text/plain\r\n"
-               "Content-Length: 12\r\n"
-               "Connection: close\r\n"
-               "\r\n"
-               "Hello World!";
-
-  // char wbuf[] = "world";
-  write(connfd, res, strlen(res));
+  // const char reply[] = "world";
+  // char wbuf[4 + sizeof(reply)];
+  // len = (uint32_t)strlen(reply);
+  // memcpy(wbuf, &len, 4);
+  // memcpy(&wbuf[4], reply, len);
+  // return write_all(connfd, wbuf, 4 + len);
+  return 0;
 }

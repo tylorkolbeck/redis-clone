@@ -14,7 +14,7 @@ int init_log(char *fileName) {
     perror("Failed to open error log File Descriptor");
     return 1;
   } else {
-    // printf("Error log opened for writing FD: %d\n", logger_fd);
+    printf("Error log opened for writing FD: %d\n", logger_fd);
     return 0;
   }
 
@@ -36,16 +36,20 @@ void logger(const char *msg) {
   size_t ts_len =
       strftime(timestamp, sizeof(timestamp), "[%Y-%m-%d %H:%M:%S] ", time_info);
 
+  ssize_t bw;
   if (ts_len > 0) {
-    write(logger_fd, timestamp, ts_len);
+    bw = write(logger_fd, timestamp, ts_len);
+    if (bw < 0) {
+      printf("error writing log\n");
+    }
   }
 
-  write(logger_fd, msg, strlen(msg));
-  write(logger_fd, "\n", 1);
+  bw = write(logger_fd, msg, strlen(msg));
+  bw = write(logger_fd, "\n", 1);
   fsync(logger_fd);
 }
 
-void log_http(int connfd, const char *raw_req) {
+void log_http(int connfd) {
   char req_buffer[4096];
   memset(req_buffer, 0, sizeof(req_buffer));
   ssize_t bytes_read = read(connfd, req_buffer, sizeof(req_buffer) - 1);
@@ -59,7 +63,10 @@ void log_http(int connfd, const char *raw_req) {
   }
   req_buffer[bytes_read] = '\0';
 
-  write(logger_fd, req_buffer, strlen(req_buffer));
+  ssize_t bw = write(logger_fd, req_buffer, strlen(req_buffer));
+  if (bw < 0) {
+    printf("error logging http request\n");
+  }
 }
 
 // Caller is responsible for calling free on the returned string
