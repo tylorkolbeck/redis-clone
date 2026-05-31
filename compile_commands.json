@@ -30,9 +30,9 @@
     "arguments": [
       "/usr/bin/gcc",
       "-c",
-      "client.c"
+      "network.c"
     ],
     "directory": "/home/tylor/dev/c-learning/redis-clone",
-    "file": "/home/tylor/dev/c-learning/redis-clone/client.c"
+    "file": "/home/tylor/dev/c-learning/redis-clone/network.c"
   }
 ]

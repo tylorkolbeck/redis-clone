@@ -9,7 +9,7 @@ CLIENT_TARGET = $(BIN_DIR)/client
 all: server client
 
 server: server.c util.c
-	$(CC) $(CFLAGS) server.c util.c logger.c -o ./out/server
+	$(CC) $(CFLAGS) server.c util.c network.c logger.c -o ./out/server
 
 client: client.c util.c
 	$(CC) $(CFLAGS) client.c util.c logger.c -o ./out/client
